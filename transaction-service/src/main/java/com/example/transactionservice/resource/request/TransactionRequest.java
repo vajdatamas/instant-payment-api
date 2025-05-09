@@ -11,10 +11,11 @@ import java.util.UUID;
 @Builder
 public record TransactionRequest(
 
+        @NotNull(message = "TransactionId is required")
         UUID transactionId,
 
         @NotNull(message = "Amount is required.")
-        @DecimalMin(value = "0.01", inclusive = true, message = "Amount must be greater than zero.")
+        @DecimalMin(value = "0.01", message = "Amount must be greater than zero.")
         BigDecimal amount,
 
         @NotBlank(message = "Sender account is required.")

@@ -1,6 +1,7 @@
 package com.example.transactionservice.controller;
 
 import com.example.transactionservice.exception.DuplicateTransactionException;
+import com.example.transactionservice.exception.InvalidTransactionException;
 import com.example.transactionservice.exception.ResourceValidationException;
 import com.example.transactionservice.resource.request.TransactionRequest;
 import com.example.transactionservice.resource.response.TransactionResponse;
@@ -33,17 +34,17 @@ public class TransactionControllerTest {
     @Test
     public void test_shouldCreateTransactionSuccessfully() {
         // given
-        final var request = new TransactionRequest(
-                null,
-                BigDecimal.valueOf(100.00),
-                "1234567890",
-                "0987654321"
-        );
+        final var transactionId = UUID.randomUUID();
+        final var request = TransactionRequest.builder()
+                .transactionId(transactionId)
+                .amount(BigDecimal.valueOf(50))
+                .senderAccount("1111111111")
+                .receiverAccount("2222222222")
+                .build();
 
-        final var generatedId = UUID.randomUUID();
 
         final var expectedResponse = TransactionResponse.builder()
-                .transactionId(generatedId)
+                .transactionId(transactionId)
                 .message("Transaction completed.")
                 .build();
 
@@ -55,7 +56,7 @@ public class TransactionControllerTest {
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().transactionId()).isEqualTo(generatedId);
+        assertThat(response.getBody().transactionId()).isEqualTo(transactionId);
         assertThat(response.getBody().message()).isEqualTo("Transaction completed.");
 
         verify(transactionService, times(1)).createTransaction(request);
@@ -65,12 +66,13 @@ public class TransactionControllerTest {
     @Test
     void test_shouldReturn500WhenServiceFails() {
         // given
-        final var request = new TransactionRequest(
-                null,
-                BigDecimal.valueOf(100.00),
-                "1234567890",
-                "0987654321"
-        );
+        final var transactionId = UUID.randomUUID();
+        final var request = TransactionRequest.builder()
+                .transactionId(transactionId)
+                .amount(BigDecimal.valueOf(50))
+                .senderAccount("1111111111")
+                .receiverAccount("2222222222")
+                .build();
 
         when(transactionService.createTransaction(request))
                 .thenThrow(new IllegalStateException("Unexpected error"));
@@ -78,7 +80,7 @@ public class TransactionControllerTest {
         // when
         try {
             transactionController.createTransaction(request);
-        } catch (IllegalStateException ex) {
+        } catch (final IllegalStateException ex) {
             // then
             assertThat(ex).isInstanceOf(IllegalStateException.class);
             assertThat(ex.getMessage()).isEqualTo("Unexpected error");
@@ -89,18 +91,19 @@ public class TransactionControllerTest {
 
     @Test
     void test_shouldThrowDuplicateTransactionException() {
-        // Given
-        final var request = new TransactionRequest(
-                UUID.randomUUID(),
-                new BigDecimal("50.00"),
-                "1111111111",
-                "2222222222"
-        );
+        // given
+        final var transactionId = UUID.randomUUID();
+        final var request = TransactionRequest.builder()
+                .transactionId(transactionId)
+                .amount(BigDecimal.valueOf(50))
+                .senderAccount("1111111111")
+                .receiverAccount("2222222222")
+                .build();
 
         when(transactionService.createTransaction(request))
                 .thenThrow(new DuplicateTransactionException("Transaction already exists"));
 
-        // When / Then
+        // when / then
         final var exception = assertThrows(
                 DuplicateTransactionException.class,
                 () -> transactionController.createTransaction(request)
@@ -111,19 +114,46 @@ public class TransactionControllerTest {
     }
 
     @Test
-    void test_shouldThrowValidationException() {
-        // Given
-        final var request = new TransactionRequest(
-                UUID.randomUUID(),
-                BigDecimal.ZERO, // Invalid value (példa)
-                "1111111111",
-                "2222222222"
+    void test_shouldThrowInvalidTransactionException() {
+        // given
+        final var transactionId = UUID.randomUUID();
+        final var request = TransactionRequest.builder()
+                .transactionId(transactionId)
+                .amount(BigDecimal.valueOf(50))
+                .senderAccount("1111111111")
+                .receiverAccount("1111111111")
+                .build();
+
+
+        when(transactionService.createTransaction(request))
+                .thenThrow(new InvalidTransactionException("Sender and receiver cannot be the same account."));
+
+        // when / then
+        final var exception = assertThrows(
+                InvalidTransactionException.class,
+                () -> transactionController.createTransaction(request)
         );
+
+        assertThat(exception.getMessage()).isEqualTo("Sender and receiver cannot be the same account.");
+        verify(transactionService, times(1)).createTransaction(request);
+    }
+
+
+    @Test
+    void test_shouldThrowValidationException() {
+        // given
+        final var transactionId = UUID.randomUUID();
+        final var request = TransactionRequest.builder()
+                .transactionId(transactionId)
+                .amount(BigDecimal.ZERO)
+                .senderAccount("1111111111")
+                .receiverAccount("2222222222")
+                .build();
 
         when(transactionService.createTransaction(request))
                 .thenThrow(new ResourceValidationException("amount", "Amount must be greater than zero"));
 
-        // When / Then
+        // when / then
         final var exception = assertThrows(
                 ResourceValidationException.class,
                 () -> transactionController.createTransaction(request)

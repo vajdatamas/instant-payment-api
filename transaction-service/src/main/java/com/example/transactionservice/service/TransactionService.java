@@ -6,6 +6,7 @@ import com.example.dao.model.type.TransactionStatus;
 import com.example.dao.repository.TransactionRepository;
 import com.example.transactionservice.exception.DuplicateTransactionException;
 import com.example.transactionservice.exception.InsufficientBalanceException;
+import com.example.transactionservice.exception.InvalidTransactionException;
 import com.example.transactionservice.resource.request.TransactionRequest;
 import com.example.transactionservice.resource.response.TransactionResponse;
 import jakarta.transaction.Transactional;
@@ -29,9 +30,7 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse createTransaction(final TransactionRequest transactionRequest) {
-        final var transactionId = !Objects.isNull(transactionRequest.transactionId())
-                ? transactionRequest.transactionId()
-                : generateUniqueTransactionId();
+        final var transactionId = transactionRequest.transactionId();
 
         //exactly once check
         if (transactionRepository.existsByTransactionId(transactionId)) {
@@ -40,6 +39,10 @@ public class TransactionService {
 
         final Account sender = accountService.getByAccountNumber(transactionRequest.senderAccount());
         final Account receiver = accountService.getByAccountNumber(transactionRequest.receiverAccount());
+        if (Objects.equals(sender.getId(), receiver.getId())) {
+            throw new InvalidTransactionException("Sender and receiver cannot be the same account.");
+        }
+
         final BigDecimal amount = transactionRequest.amount();
 
         if (!sender.hasSufficientBalance(amount)) {
@@ -78,11 +81,4 @@ public class TransactionService {
         log.info("Transaction created successfully. Transaction ID: {}", transactionId);
     }
 
-    private UUID generateUniqueTransactionId() {
-        UUID uuid;
-        do {
-            uuid = UUID.randomUUID();
-        } while (transactionRepository.existsByTransactionId(uuid));
-        return uuid;
-    }
 }

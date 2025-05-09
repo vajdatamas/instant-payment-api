@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -25,6 +26,7 @@ import java.util.UUID;
 @Table(name = "transactions")
 @Getter
 @Setter
+@Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Transaction {
@@ -58,9 +60,9 @@ public class Transaction {
     private ZonedDateTime updatedAt;
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Transaction that = (Transaction) o;
+        final Transaction that = (Transaction) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(transactionId, that.transactionId)
                 && Objects.equals(amount, that.amount)
