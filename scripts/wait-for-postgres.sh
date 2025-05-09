@@ -7,4 +7,4 @@ while ! nc -z "$DB_HOST" "$DB_PORT"; do
 done
 
 echo "PostgreSQL is up - starting application..."
-exec java -jar /app/transaction-service.jar
+exec java -jar /app/*-service.jar

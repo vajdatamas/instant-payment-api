@@ -2,7 +2,7 @@ package com.example.transactionservice.service;
 
 import com.example.dao.model.OutboxEvent;
 import com.example.dao.model.type.AggregateType;
-import com.example.dao.model.type.EventType;
+import com.example.dao.model.type.OutboxEventStatus;
 import com.example.dao.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +23,8 @@ public class OutboxEventService {
         final OutboxEvent event = new OutboxEvent()
                 .setAggregateType(AggregateType.TRANSACTION)
                 .setAggregateId(transactionId)
-                .setEventType(EventType.CREATED)
+                .setOutboxEventStatus(OutboxEventStatus.PENDING)
                 .setPayload("{\"transactionId\":\"" + transactionId + "\"}")
-                .setProcessed(false)
                 .setCreatedAt(ZonedDateTime.now());
 
         outboxEventRepository.save(event);
