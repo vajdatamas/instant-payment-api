@@ -1,5 +1,6 @@
 package com.example.dao.model;
 
+import com.example.dao.model.type.AggregateType;
 import com.example.dao.model.type.EventType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,8 +33,9 @@ public class OutboxEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String aggregateType;
+    private AggregateType aggregateType;
 
     @Column(nullable = false)
     private UUID aggregateId;

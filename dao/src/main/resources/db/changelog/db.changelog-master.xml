@@ -20,4 +20,9 @@
         <comment>create outbox_events table</comment>
     </changeSet>
 
+    <changeSet id="4" author="tamasvajda" context="development">
+        <sqlFile path="004-init-data.sql" relativeToChangelogFile="true"/>
+        <comment>initial data for development purposes</comment>
+    </changeSet>
+
 </databaseChangeLog>

@@ -35,6 +35,10 @@ public class Account {
 
     private ZonedDateTime updatedAt;
 
+    public boolean hasSufficientBalance(BigDecimal amount) {
+        return this.balance.compareTo(amount) >= 0;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
