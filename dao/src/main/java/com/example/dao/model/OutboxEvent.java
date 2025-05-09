@@ -1,7 +1,7 @@
 package com.example.dao.model;
 
 import com.example.dao.model.type.AggregateType;
-import com.example.dao.model.type.EventType;
+import com.example.dao.model.type.OutboxEventStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,14 +43,13 @@ public class OutboxEvent {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EventType eventType;
+    private OutboxEventStatus outboxEventStatus;
 
-    @Lob
     @Column(nullable = false)
     private String payload;
 
     @Column(nullable = false)
-    private boolean processed;
+    private int retryCount = 0;
 
     @LastModifiedDate
     @Column(name = "created_at", nullable = false)
@@ -61,18 +59,17 @@ public class OutboxEvent {
     public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         final OutboxEvent that = (OutboxEvent) o;
-        return processed == that.processed
-                && Objects.equals(id, that.id)
+        return Objects.equals(id, that.id)
                 && Objects.equals(aggregateType, that.aggregateType)
                 && Objects.equals(aggregateId, that.aggregateId)
-                && Objects.equals(eventType, that.eventType)
+                && Objects.equals(outboxEventStatus, that.outboxEventStatus)
                 && Objects.equals(payload, that.payload)
                 && Objects.equals(createdAt, that.createdAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, aggregateType, aggregateId, eventType, payload, processed, createdAt);
+        return Objects.hash(id, aggregateType, aggregateId, outboxEventStatus, payload, createdAt);
     }
 
     @Override
@@ -81,9 +78,8 @@ public class OutboxEvent {
                 "id=" + id +
                 ", aggregateType='" + aggregateType + '\'' +
                 ", aggregateId=" + aggregateId +
-                ", eventType='" + eventType + '\'' +
+                ", outboxEventStatus='" + outboxEventStatus + '\'' +
                 ", payload='" + payload + '\'' +
-                ", processed=" + processed +
                 ", createdAt=" + createdAt +
                 '}';
     }

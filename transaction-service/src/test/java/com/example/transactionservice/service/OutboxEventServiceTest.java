@@ -2,7 +2,7 @@ package com.example.transactionservice.service;
 
 import com.example.dao.model.OutboxEvent;
 import com.example.dao.model.type.AggregateType;
-import com.example.dao.model.type.EventType;
+import com.example.dao.model.type.OutboxEventStatus;
 import com.example.dao.repository.OutboxEventRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,10 +38,9 @@ class OutboxEventServiceTest {
 
         final var event = captor.getValue();
         assertThat(event.getAggregateType()).isEqualTo(AggregateType.TRANSACTION);
-        assertThat(event.getEventType()).isEqualTo(EventType.CREATED);
+        assertThat(event.getOutboxEventStatus()).isEqualTo(OutboxEventStatus.PENDING);
         assertThat(event.getPayload()).isEqualTo(expectedPayload);
         assertThat(event.getAggregateId()).isEqualTo(transactionId);
-        assertThat(event.isProcessed()).isFalse();
         assertThat(event.getCreatedAt()).isNotNull();
     }
 }
