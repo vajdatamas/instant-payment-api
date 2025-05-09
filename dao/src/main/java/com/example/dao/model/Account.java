@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -19,6 +20,7 @@ import java.util.Objects;
 @Table(name = "accounts")
 @Getter
 @Setter
+@Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Account {
@@ -35,14 +37,14 @@ public class Account {
 
     private ZonedDateTime updatedAt;
 
-    public boolean hasSufficientBalance(BigDecimal amount) {
+    public boolean hasSufficientBalance(final BigDecimal amount) {
         return this.balance.compareTo(amount) >= 0;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Account account = (Account) o;
+        final Account account = (Account) o;
         return Objects.equals(id, account.id)
                 && Objects.equals(accountNumber, account.accountNumber)
                 && Objects.equals(balance, account.balance)

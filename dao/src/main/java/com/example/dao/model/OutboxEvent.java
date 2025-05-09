@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.ZonedDateTime;
@@ -25,6 +26,7 @@ import java.util.UUID;
 @Table(name = "outbox_events")
 @Getter
 @Setter
+@Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class OutboxEvent {
@@ -56,9 +58,9 @@ public class OutboxEvent {
     private ZonedDateTime createdAt;
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        OutboxEvent that = (OutboxEvent) o;
+        final OutboxEvent that = (OutboxEvent) o;
         return processed == that.processed
                 && Objects.equals(id, that.id)
                 && Objects.equals(aggregateType, that.aggregateType)

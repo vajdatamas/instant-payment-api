@@ -3,11 +3,13 @@ package com.example.transactionservice.service;
 import com.example.dao.model.Account;
 import com.example.dao.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -20,6 +22,7 @@ public class AccountService {
     }
 
     public void updateBalances(final Account sender, final Account receiver, final BigDecimal amount) {
+        log.info("Start updating balances");
         sender.setBalance(sender.getBalance().subtract(amount));
         receiver.setBalance(receiver.getBalance().add(amount));
 
@@ -29,5 +32,6 @@ public class AccountService {
 
         accountRepository.save(sender);
         accountRepository.save(receiver);
+        log.info("Balances has been updated");
     }
 }
