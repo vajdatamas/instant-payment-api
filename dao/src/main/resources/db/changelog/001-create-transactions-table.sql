@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS transactions (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     transaction_id UUID NOT NULL UNIQUE,
     amount DECIMAL(18, 2) NOT NULL,
     sender_account VARCHAR(255) NOT NULL,

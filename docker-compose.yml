@@ -13,6 +13,11 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - service-net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
@@ -50,11 +55,13 @@ services:
   transaction-service:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/transaction-service/Dockerfile
     container_name: transaction-service
     depends_on:
       - postgres
-      - kafka
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
     ports:
       - "8080:8080"
     networks:
@@ -63,10 +70,14 @@ services:
   notification-service:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/notification-service/Dockerfile
     container_name: notification-service
     depends_on:
+      - postgres
       - kafka
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
     ports:
       - "8081:8080"
     networks:
